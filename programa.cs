@@ -1,5 +1,10 @@
-entero a = 25;
-entero b = 17;
-entero c = a + b;
+imprimir("Ingresa el primer número:");
+entero a = leer();
+
+imprimir("Ingresa el segundo número:");
+entero b = leer();
+
+entero suma = a + b;
+
 imprimir("Resultado:");
-imprimir(c);
+imprimir(suma);
