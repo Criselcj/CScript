@@ -433,6 +433,6 @@ def run(program_text: str) -> None:
 
 
 if __name__ == "__main__":
-    with open("programa.cs", "r", encoding="utf-8") as f:
+    with open("programa.csc", "r", encoding="utf-8") as f:
         code = f.read()
     run(code)
