@@ -606,30 +606,38 @@ class LexicalErrorInfo:
     sugerencia: str
 
 
+# def run(program_text: str, mostrar_lexico: bool = True) -> None:
+#     parser = Lark(GRAMMAR, parser="lalr", lexer="contextual", propagate_positions=True)
+
+#     try:
+#         if mostrar_lexico:
+#             ok = mostrar_logs_lexicos(program_text)
+#             if not ok:
+#                 print("[EJECUCION DETENIDA] Hay errores léxicos en el código.")
+#                 return
+
+#         tree = parser.parse(program_text)
+#         interp = CScriptInterpreter()
+#         interp.visit(tree)
+
+#     except UnexpectedInput as e:
+#         print("\n[ERROR DE ANALISIS]")
+#         print(f"Línea: {e.line}")
+#         print(f"Columna: {e.column}")
+#         print("Se encontró un lexema no reconocido o una estructura inválida.")
+#         print(e.get_context(program_text))
+
+#     except Exception as e:
+#         print(f"\n[ERROR DE EJECUCION] {e}")
+
 def run(program_text: str, mostrar_lexico: bool = True) -> None:
-    parser = Lark(GRAMMAR, parser="lalr", lexer="contextual", propagate_positions=True)
+    if mostrar_lexico:
+        ok = mostrar_logs_lexicos(program_text)
+        if not ok:
+            print("[EJECUCION DETENIDA] Hay errores léxicos en el código.")
+            return
 
-    try:
-        if mostrar_lexico:
-            ok = mostrar_logs_lexicos(program_text)
-            if not ok:
-                print("[EJECUCION DETENIDA] Hay errores léxicos en el código.")
-                return
-
-        tree = parser.parse(program_text)
-        interp = CScriptInterpreter()
-        interp.visit(tree)
-
-    except UnexpectedInput as e:
-        print("\n[ERROR DE ANALISIS]")
-        print(f"Línea: {e.line}")
-        print(f"Columna: {e.column}")
-        print("Se encontró un lexema no reconocido o una estructura inválida.")
-        print(e.get_context(program_text))
-
-    except Exception as e:
-        print(f"\n[ERROR DE EJECUCION] {e}")
-
+    print("[MODO LEXICO] Análisis léxico finalizado.")
 
 if __name__ == "__main__":
     with open("programa.csc", "r", encoding="utf-8") as f:
