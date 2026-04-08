@@ -169,7 +169,7 @@ def normalizar_token(tok: Token) -> str:
 
 
 def analizar_lexico(program_text: str) -> tuple[list[dict], list[LexicalErrorInfo]]:
-    parser = Lark(GRAMMAR, parser="lalr", lexer="contextual", propagate_positions=True)
+    parser = Lark(GRAMMAR, parser="lalr", lexer="contextual", propagate_positions=True)#lexer="contextual" activa el componente que separa el texto en tokens
     tokens = []
     errores = []
 
@@ -183,7 +183,7 @@ def analizar_lexico(program_text: str) -> tuple[list[dict], list[LexicalErrorInf
                 "lexema": tok.value,
                 "tipo_lark": tok.type,
             })
-
+    #obtención del error
     except UnexpectedInput as e:
         linea = getattr(e, "line", 0)
         columna = getattr(e, "column", 0)
