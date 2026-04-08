@@ -1,4 +1,4 @@
-text prueba = 1 + 1;
+texto prueba = 1 + 1;
 decimal promedio = (a + b) / 2;
 texto mensaje = "Resultado calculado";
 booleano mayor = suma > 10;
@@ -22,5 +22,6 @@ si (suma > 10) {
 //texto mensaje = "Hola Mundo;
 //imprimir(mensaje)
 //texto mesaje2 = "Hello World!";
+
 
 
