@@ -75,8 +75,7 @@ LOG_OP: "y" | "o"
 ENTERO: /\d+/
 DECIMAL: /\d+\.\d+/
 
-NAME: /(?!entero|decimal|texto|booleano|verdadero|falso|si|sino|mientras|para|hacer|segun|caso|defecto|romper|imprimir|leer|no|y|o)\b[a-zA-Z_][a-zA-Z0-9_]*/
-
+NAME: /[a-zA-Z_][a-zA-Z0-9_]*/
 %import common.ESCAPED_STRING -> STRING
 %import common.WS
 %ignore WS

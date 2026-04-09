@@ -1,26 +1,15 @@
-text prueba = 1 + 1;
-decimal promedio = (a + b) / 2;
-texto mensaje = "Resultado calculado";
-booleano mayor = suma > 10;
+//entero 1x = 5;
 
-imprimir(mensaje);
-imprimir("Suma:");
-imprimir(suma);
+//decimal x = 5.;
 
-imprimir("Promedio:");
-imprimir(promedio);
+//decimal x = 3.1.4;
 
-imprimir("Mayor que 10:");
-imprimir(mayor);
+//entero x = 5 @ 3;
 
-si (suma > 10) {
-    imprimir("La suma es mayor que 10");
-} sino {
-    imprimir("La suma no es mayor que 10");
-}
+texto nombre = "Juan";
 
-//texto mensaje = "Hola Mundo;
-//imprimir(mensaje)
-//texto mesaje2 = "Hello World!";
+//entero x = 5 $ 2;
 
+//entero mi-var = 10;
 
+//entero x = 5abc;
