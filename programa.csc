@@ -6,10 +6,6 @@
 
 //entero x = 5 @ 3;
 
-texto nombre = "Juan";
+//texto nombre = "Juan;
 
 //entero x = 5 $ 2;
-
-//entero mi-var = 10;
-
-//entero x = 5abc;
