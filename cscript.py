@@ -9,77 +9,104 @@ from lark.visitors import Interpreter
 from dataclasses import dataclass
 
 GRAMMAR = r"""
-?start: stmt*
+// --------------------
+// REGLA INICIAL (OBLIGATORIA)
+// --------------------
+start: token*
 
-?stmt: decl ";"
-     | assign ";"
-     | print_stmt ";"
-     | if_stmt
-     | while_stmt
-     | do_while_stmt ";"
-     | for_stmt
-     | switch_stmt
+token: TYPE
+     | BOOLEAN
+     | REL_OP
+     | LOG_OP
+     | IMPRIMIR
+     | LEER
+     | SI
+     | SINO
+     | MIENTRAS
+     | HACER
+     | PARA
+     | SEGUN
+     | CASO
+     | DEFECTO
+     | ROMPER
+     | NO
+     | EQUAL
+     | PLUS
+     | MINUS
+     | STAR
+     | SLASH
+     | PERCENT
+     | LPAR
+     | RPAR
+     | LBRACE
+     | RBRACE
+     | SEMICOLON
+     | COLON
+     | ENTERO
+     | DECIMAL
+     | STRING
+     | NAME
 
-decl: TYPE NAME ("=" value)?
-assign: NAME "=" value
-print_stmt: "imprimir" "(" value ")"
-
-?value: cond
-      | expr
-
-if_stmt: "si" "(" cond ")" block ("sino" block)?
-while_stmt: "mientras" "(" cond ")" block
-do_while_stmt: "hacer" block "mientras" "(" cond ")"
-
-for_stmt: "para" "(" for_init? ";" cond? ";" for_update? ")" block
-for_init: decl_in_for | assign
-decl_in_for: TYPE NAME ("=" expr)?
-for_update: assign
-
-switch_stmt: "segun" "(" expr ")" "{" case_block* default_block? "}"
-case_block: "caso" literal ":" stmt* "romper" ";"
-default_block: "defecto" ":" stmt*
-
-block: "{" stmt* "}"
-
-?literal: DECIMAL  -> decimal
-        | ENTERO   -> entero
-        | STRING   -> string
-        | BOOLEAN  -> boolean
-
-?cond: expr REL_OP expr      -> rel
-     | "no" cond             -> not_
-     | cond LOG_OP cond      -> logic
-     | "(" cond ")"
-
-?expr: term
-     | expr "+" term         -> add
-     | expr "-" term         -> sub
-
-?term: factor
-     | term "*" factor       -> mul
-     | term "/" factor       -> div
-     | term "%" factor       -> mod
-
-?factor: "-" factor          -> neg
-       | "leer" "(" ")"      -> read
-       | literal
-       | NAME                -> var
-       | "(" expr ")"
-
+// --------------------
+// PALABRAS RESERVADAS
+// --------------------
 TYPE: "entero" | "decimal" | "texto" | "booleano"
+
 BOOLEAN: "verdadero" | "falso"
+
+IMPRIMIR: "imprimir"
+LEER: "leer"
+SI: "si"
+SINO: "sino"
+MIENTRAS: "mientras"
+HACER: "hacer"
+PARA: "para"
+SEGUN: "segun"
+CASO: "caso"
+DEFECTO: "defecto"
+ROMPER: "romper"
+NO: "no"
+
+// --------------------
+// OPERADORES
+// --------------------
 REL_OP: "==" | "!=" | "<=" | ">=" | "<" | ">"
 LOG_OP: "y" | "o"
 
+// prioridad alta para evitar conflictos
+EQUAL.2: "="
+PLUS.2: "+"
+MINUS.2: "-"
+STAR.2: "*"
+SLASH: "/"
+PERCENT.2: "%"
+
+// --------------------
+// SÍMBOLOS
+// --------------------
+LPAR: "("
+RPAR: ")"
+LBRACE: "{"
+RBRACE: "}"
+SEMICOLON: ";"
+COLON: ":"
+
+// --------------------
+// LITERALES
+// --------------------
 ENTERO: /\d+/
 DECIMAL: /\d+\.\d+/
 
 NAME: /[a-zA-Z_][a-zA-Z0-9_]*/
+
+// --------------------
+// IMPORTS Y IGNORE
+// --------------------
 %import common.ESCAPED_STRING -> STRING
 %import common.WS
 %ignore WS
 
+// comentarios
 %ignore /\/\/[^\n]*/
 %ignore /\/\*.*?\*\//s
 """

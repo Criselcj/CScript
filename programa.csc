@@ -5,5 +5,5 @@
 
 //entero x = 5 $ 3;
 
-texto nombre = "Juan";
+texto nombre = "Juan;
 
