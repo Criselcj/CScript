@@ -9,9 +9,6 @@ from lark.visitors import Interpreter
 from dataclasses import dataclass
 
 GRAMMAR = r"""
-// --------------------
-// REGLA INICIAL (OBLIGATORIA)
-// --------------------
 start: token*
 
 token: TYPE
@@ -195,7 +192,7 @@ def normalizar_token(tok: Token) -> str:
 
 
 def analizar_lexico(program_text: str) -> tuple[list[dict], list[LexicalErrorInfo]]:
-    parser = Lark(GRAMMAR, parser="lalr", lexer="contextual", propagate_positions=True)#lexer="contextual" activa el componente que separa el texto en tokens
+    parser = Lark(GRAMMAR, parser=None, lexer="contextual", propagate_positions=True)#lexer="contextual" activa el componente que separa el texto en tokens
     tokens = []
     errores = []
 

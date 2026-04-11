@@ -1,3 +1,4 @@
+//texto prueba = @nombre;
 
 //decimal x = 5.;
 
@@ -5,5 +6,8 @@
 
 //entero x = 5 $ 3;
 
-texto nombre = "Juan;
+//texto nombre = "Juan;
+
+
+
 
