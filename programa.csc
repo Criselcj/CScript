@@ -6,7 +6,12 @@
 
 //entero x = 5 $ 3;
 
-//texto nombre = "Juan;
+entero x = 5;
+entero y = 10;
+entero total = x + y;
+
+imprimir(total);
+
 
 
 

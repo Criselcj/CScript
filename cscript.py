@@ -166,6 +166,145 @@ NAME:      /[a-zA-Z_][a-zA-Z0-9_]*/
 
 
 # ============================================================
+# GRAMÁTICA PARA ÁRBOL DE DERIVACIÓN
+#
+# Esta gramática se usa SOLO para dibujar el árbol correcto.
+# A diferencia del parser de ejecución, conserva todos los tokens
+# importantes de las reglas: palabras reservadas, paréntesis,
+# llaves, operadores y punto y coma.
+# ============================================================
+DERIVATION_GRAMMAR = r"""
+start: programa
+
+programa: sentencia*
+
+sentencia: declaracion SEMICOLON
+         | asignacion SEMICOLON
+         | impresion SEMICOLON
+         | si
+         | mientras
+         | hacer_mientras SEMICOLON
+         | para
+         | segun
+
+// ---- Sentencias principales según las reglas BNF ----------
+declaracion: tipo identificador
+           | tipo identificador EQUAL _valor
+
+asignacion: identificador EQUAL _valor
+
+impresion: IMPRIMIR LPAR expresion RPAR
+
+si: SI LPAR condicion RPAR bloque
+  | SI LPAR condicion RPAR bloque SINO bloque
+
+mientras: MIENTRAS LPAR condicion RPAR bloque
+
+hacer_mientras: HACER bloque MIENTRAS LPAR condicion RPAR
+
+para: PARA LPAR inicio_for SEMICOLON condicion SEMICOLON actualizacion_for RPAR bloque
+
+inicio_for: declaracion_for
+          | asignacion
+
+declaracion_for: tipo identificador
+               | tipo identificador EQUAL expresion
+
+actualizacion_for: asignacion
+
+segun: SEGUN LPAR expresion RPAR LBRACE caso* defecto? RBRACE
+
+caso: CASO literal COLON sentencia* ROMPER SEMICOLON
+
+defecto: DEFECTO COLON sentencia*
+
+bloque: LBRACE sentencia* RBRACE
+
+_valor: expresion
+      | condicion
+
+condicion: condicion_simple
+         | NO condicion
+         | condicion operador_logico condicion
+         | LPAR condicion RPAR
+
+condicion_simple.3: identificador
+                  | booleano
+                  | expresion operador_relacional expresion
+
+expresion.1: termino
+           | expresion PLUS termino
+           | expresion MINUS termino
+
+termino.1: factor
+         | termino STAR factor
+         | termino SLASH factor
+         | termino PERCENT factor
+
+factor.1: MINUS factor
+        | LEER LPAR RPAR
+        | literal
+        | identificador
+        | LPAR expresion RPAR
+
+literal.1: entero
+         | decimal
+         | texto
+         | booleano
+
+tipo: TYPE
+identificador: NAME
+entero: ENTERO
+decimal: DECIMAL
+texto: STRING
+booleano: BOOLEAN
+operador_relacional: REL_OP
+operador_logico: LOG_OP
+
+// ---- Terminales visibles en el árbol ----------------------
+TYPE.2:    "entero" | "decimal" | "texto" | "booleano"
+BOOLEAN.2: "verdadero" | "falso"
+IMPRIMIR:  "imprimir"
+LEER:      "leer"
+SI:        "si"
+SINO:      "sino"
+MIENTRAS:  "mientras"
+HACER:     "hacer"
+PARA:      "para"
+SEGUN:     "segun"
+CASO:      "caso"
+DEFECTO:   "defecto"
+ROMPER:    "romper"
+NO:        "no"
+LOG_OP:    "y" | "o"
+
+REL_OP:    "==" | "!=" | "<=" | ">=" | "<" | ">"
+EQUAL:     "="
+PLUS:      "+"
+MINUS:     "-"
+STAR:      "*"
+SLASH:     "/"
+PERCENT:   "%"
+LPAR:      "("
+RPAR:      ")"
+LBRACE:    "{"
+RBRACE:    "}"
+SEMICOLON: ";"
+COLON:     ":"
+
+DECIMAL.2: /\d+\.\d+/
+ENTERO:    /\d+/
+NAME:      /[a-zA-Z_][a-zA-Z0-9_]*/
+
+%import common.ESCAPED_STRING -> STRING
+%import common.WS
+%ignore WS
+%ignore /\/\/[^\n]*/
+%ignore /\/\*.*?\*\//s
+"""
+
+
+# ============================================================
 # TABLA DE NOMBRES DE TOKENS  (análisis léxico)
 # ============================================================
 TOKEN_NAMES: dict[str, str] = {
@@ -357,6 +496,62 @@ def analizar_sintactico(code: str) -> tuple[Optional[Tree], list[SyntacticErrorI
         errores.append(SyntacticErrorInfo(
             numero=1, linea=0, columna=0,
             descripcion=f"Error inesperado: {e}",
+            sugerencia="Revisa la estructura general del programa.",
+            contexto="",
+        ))
+        return None, errores
+
+
+_DERIVATION_PARSER_CACHE: Optional[Lark] = None
+
+
+def _get_derivation_parser() -> Lark:
+    """Parser exclusivo para dibujar árbol de derivación completo."""
+    global _DERIVATION_PARSER_CACHE
+    if _DERIVATION_PARSER_CACHE is None:
+        _DERIVATION_PARSER_CACHE = Lark(
+            DERIVATION_GRAMMAR,
+            parser="lalr",
+            lexer="contextual",
+            propagate_positions=True,
+            keep_all_tokens=True,
+        )
+    return _DERIVATION_PARSER_CACHE
+
+
+def analizar_arbol_derivacion(code: str) -> tuple[Optional[Tree], list[SyntacticErrorInfo]]:
+    """
+    Genera el árbol de derivación visible para la pestaña Árbol.
+    No reemplaza al parser principal de ejecución; solo conserva los
+    símbolos terminales para que el árbol coincida con las reglas BNF.
+    """
+    errores: list[SyntacticErrorInfo] = []
+    try:
+        tree = _get_derivation_parser().parse(code)
+        return tree, errores
+    except UnexpectedInput as e:
+        linea = getattr(e, "line", 0)
+        columna = getattr(e, "column", 0)
+        contexto = ""
+        try:
+            contexto = e.get_context(code)
+        except Exception:
+            pass
+        errores.append(SyntacticErrorInfo(
+            numero=1,
+            linea=linea,
+            columna=columna,
+            descripcion="Error de sintaxis: no se pudo generar el árbol de derivación.",
+            sugerencia=_sugerencia_sintactica(e),
+            contexto=contexto,
+        ))
+        return None, errores
+    except Exception as e:
+        errores.append(SyntacticErrorInfo(
+            numero=1,
+            linea=0,
+            columna=0,
+            descripcion=f"Error inesperado al generar el árbol de derivación: {e}",
             sugerencia="Revisa la estructura general del programa.",
             contexto="",
         ))

@@ -17,6 +17,7 @@ from cscript import (
     SymbolInfo,
     analizar_lexico,
     analizar_sintactico,
+    analizar_arbol_derivacion,
     SemanticAnalyzer,
     SymbolTableBuilder,
     format_tree,
@@ -53,12 +54,12 @@ YELLOW  = "#dcdcaa"
 # ---------------------------------------------------------------------------
 
 # Mapeo nombre interno → etiqueta con corchetes angulares (BNF)
-_RULE_LABEL: dict[str, str] = {
-    "start":         "<programa>",
-    "decl":          "<declaracion>",
-    "assign":        "<asignacion>",
-    "print_stmt":    "<impresion>",
-    "if_stmt":       "<si>",
+_RULE_LABEL_LEGACY: dict[str, str] = {
+    "start":               "<programa>",
+    "programa":            "<programa>",
+    "sentencia":           "<sentencia>",
+    "declaracion":         "<declaracion>",
+    "asignacion":          "<asignacion>",
     "while_stmt":    "<mientras>",
     "do_while_stmt": "<hacer_mientras>",
     "for_stmt":      "<para>",
@@ -85,6 +86,68 @@ _RULE_LABEL: dict[str, str] = {
     "string":        "<texto>",
     "boolean":       "<booleano>",
     "read":          "<leer>",
+
+    # Nombres usados por el árbol de derivación completo
+    "sentencia":          "<sentencia>",
+    "declaracion":        "<declaracion>",
+    "asignacion":         "<asignacion>",
+    "impresion":          "<impresion>",
+    "si":                 "<si>",
+    "mientras":           "<mientras>",
+    "hacer_mientras":     "<hacer_mientras>",
+    "para":               "<para>",
+    "inicio_for":         "<inicio_for>",
+    "declaracion_for":    "<declaracion_for>",
+    "actualizacion_for":  "<actualizacion_for>",
+    "segun":              "<segun>",
+    "caso":               "<caso>",
+    "defecto":            "<defecto>",
+    "bloque":             "<bloque>",
+    "expresion":          "<expresion>",
+    "expr_o":             "<expresion_logica_o>",
+    "expr_y":             "<expresion_logica_y>",
+    "expr_no":            "<expresion_no>",
+    "expr_cmp":           "<condicion>",
+    "expr_add":           "<expresion>",
+    "expr_mul":           "<termino>",
+    "expr_unary":         "<factor>",
+    "atom":               "<factor>",
+    "literal":            "<literal>",
+}
+
+# Etiquetas efectivas del Ã¡rbol de derivaciÃ³n BNF mostrado en la GUI.
+_RULE_LABEL = {
+    "start":                "<inicio>",
+    "programa":             "<programa>",
+    "sentencia":            "<sentencia>",
+    "declaracion":          "<declaracion>",
+    "asignacion":           "<asignacion>",
+    "impresion":            "<impresion>",
+    "si":                   "<si>",
+    "mientras":             "<mientras>",
+    "hacer_mientras":       "<hacer_mientras>",
+    "para":                 "<para>",
+    "inicio_for":           "<inicio_for>",
+    "declaracion_for":      "<declaracion_for>",
+    "actualizacion_for":    "<actualizacion_for>",
+    "segun":                "<segun>",
+    "caso":                 "<caso>",
+    "defecto":              "<defecto>",
+    "bloque":               "<bloque>",
+    "condicion":            "<condicion>",
+    "condicion_simple":     "<condicion_simple>",
+    "expresion":            "<expresion>",
+    "termino":              "<termino>",
+    "factor":               "<factor>",
+    "literal":              "<literal>",
+    "tipo":                 "<tipo>",
+    "identificador":        "<identificador>",
+    "entero":               "<entero>",
+    "decimal":              "<decimal>",
+    "texto":                "<texto>",
+    "booleano":             "<booleano>",
+    "operador_relacional":  "<operador_relacional>",
+    "operador_logico":      "<operador_logico>",
 }
 
 
@@ -764,6 +827,7 @@ class CScriptIDE(tk.Tk):
         self.console.config(state=tk.DISABLED)
 
         self._tree_canvas.clear()
+        self._last_tree = None
 
         for tv in (self.token_tree, self.error_tree, self.sym_tree):
             for row in tv.get_children():
@@ -889,8 +953,32 @@ class CScriptIDE(tk.Tk):
         self.lbl_sym_count.config(
             text=f"  {len(symbols)} símbolo(s) encontrado(s)")
 
-        # ── Árbol gráfico ────────────────────────────────────────────────────
-        self._tree_canvas.draw(tree)
+        # ── Árbol gráfico de derivación ──────────────────────────────────────
+        # Se usa un parser especial que conserva tokens como ;, =, (), {},
+        # palabras reservadas y operadores. El parser principal queda intacto
+        # para la tabla de símbolos, semántica e intérprete.
+        deriv_tree, deriv_errors = analizar_arbol_derivacion(code)
+        if not deriv_errors and deriv_tree is not None:
+            self._tree_canvas.draw(deriv_tree)
+            self._last_tree = deriv_tree
+        else:
+            self._tree_canvas.clear()
+            self._last_tree = None
+            self._populate_errors(deriv_errors, "DerivaciÃ³n")
+            self.lbl_error_count.config(
+                text=f"  {len(deriv_errors)} error(es) de derivaciÃ³n")
+            self._console_write("=== ERRORES DE ÃRBOL DE DERIVACIÃ“N ===\n", "error")
+            for err in deriv_errors:
+                self._console_write(
+                    f"  LÃ­nea {err.linea}, Col {err.columna}\n"
+                    f"  {err.descripcion}\n"
+                    f"  Sugerencia: {err.sugerencia}\n", "error")
+                if err.contexto:
+                    self._console_write(f"\n{err.contexto}\n", "error")
+            self.notebook.select(1)
+            self._set_status("Detenido â€” error al generar el Ã¡rbol de derivaciÃ³n",
+                             "error")
+            return
 
         # ── Semántico ────────────────────────────────────────────────────────
         sem_errors = SemanticAnalyzer().analyze(tree)
