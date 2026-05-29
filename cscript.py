@@ -174,9 +174,7 @@ NAME:      /[a-zA-Z_][a-zA-Z0-9_]*/
 # llaves, operadores y punto y coma.
 # ============================================================
 DERIVATION_GRAMMAR = r"""
-start: programa
-
-programa: sentencia*
+start: sentencia*
 
 sentencia: declaracion SEMICOLON
          | asignacion SEMICOLON

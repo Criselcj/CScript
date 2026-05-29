@@ -117,8 +117,7 @@ _RULE_LABEL_LEGACY: dict[str, str] = {
 
 # Etiquetas efectivas del Ã¡rbol de derivaciÃ³n BNF mostrado en la GUI.
 _RULE_LABEL = {
-    "start":                "<inicio>",
-    "programa":             "<programa>",
+    "start":                "<programa>",
     "sentencia":            "<sentencia>",
     "declaracion":          "<declaracion>",
     "asignacion":           "<asignacion>",
