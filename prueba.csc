@@ -80,15 +80,15 @@ imprimir(promedio);
 entero x = 8;
 entero y = 15;
 
-si (x > 5 y y < 20) {
+si (x > 5 yy y < 20) {
     imprimir("x>5 y y<20: verdadero");
 }
 
-si (x > 100 o y > 10) {
+si (x > 100 oo y > 10) {
     imprimir("x>100 o y>10: verdadero");
 }
 
-si (no activo o x < 10) {
+si (no activo oo x < 10) {
     imprimir("condicion con 'no': verdadera");
 }
 
@@ -122,8 +122,9 @@ imprimir(-a + 100);
 booleano esPar  = verdadero;
 booleano esMayor = x > 5;
 
-si (esPar y esMayor) {
+si (esPar yy esMayor) {
     imprimir("Par y mayor que 5");
 }
 
 imprimir("Programa finalizado.");
+

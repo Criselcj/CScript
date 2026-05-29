@@ -29,7 +29,7 @@ from cscript import (
 # ---------------------------------------------------------------------------
 KEYWORDS = [
     "si", "sino", "mientras", "hacer", "para", "segun", "caso",
-    "defecto", "romper", "imprimir", "leer", "no", "y", "o",
+    "defecto", "romper", "imprimir", "leer", "no", "yy", "oo",
     "entero", "decimal", "texto", "booleano", "verdadero", "falso",
 ]
 

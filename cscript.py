@@ -34,7 +34,7 @@ CASO:     "caso"
 DEFECTO:  "defecto"
 ROMPER:   "romper"
 NO:       "no"
-LOG_OP:   "y" | "o"
+LOG_OP:   "yy" | "oo"
 
 REL_OP:   "==" | "!=" | "<=" | ">=" | "<" | ">"
 EQUAL.2:  "="
@@ -53,7 +53,7 @@ COLON:    ":"
 
 DECIMAL.2:/\d+\.\d+/
 ENTERO:   /\d+/
-NAME:     /[a-zA-Z_][a-zA-Z0-9_]*/
+NAME:     /(?!si\b|sino\b|mientras\b|hacer\b|para\b|segun\b|caso\b|defecto\b|romper\b|imprimir\b|leer\b|no\b|yy\b|oo\b|entero\b|decimal\b|texto\b|booleano\b|verdadero\b|falso\b)[a-zA-Z_][a-zA-Z0-9_]*/
 
 %import common.ESCAPED_STRING -> STRING
 %import common.WS
@@ -65,10 +65,6 @@ NAME:     /[a-zA-Z_][a-zA-Z0-9_]*/
 
 # ============================================================
 # GRAMÁTICA ESTRUCTURAL  (análisis sintáctico)
-#
-# Expresiones y condiciones unificadas en una jerarquía
-# de precedencia:  o  <  y  <  no  <  cmp  <  add  <  mul  <  unary
-# Esto evita ambigüedades con "(" en LALR.
 # ============================================================
 PARSER_GRAMMAR = r"""
 start: sentencia*
@@ -115,10 +111,10 @@ defecto: "defecto" ":" sentencia*                   -> default_block
 bloque: "{" sentencia* "}"  -> block
 
 // ---- Jerarquía de expresiones/condiciones ----------------
-?expr: expr "o" expr_y   -> logic_o
+?expr: expr "oo" expr_y  -> logic_o
       | expr_y
 
-?expr_y: expr_y "y" expr_no  -> logic_y
+?expr_y: expr_y "yy" expr_no -> logic_y
         | expr_no
 
 ?expr_no: "no" expr_no   -> not_
@@ -155,7 +151,7 @@ BOOLEAN.2: "verdadero" | "falso"
 REL_OP:    "==" | "!=" | "<=" | ">=" | "<" | ">"
 DECIMAL.2: /\d+\.\d+/
 ENTERO:    /\d+/
-NAME:      /[a-zA-Z_][a-zA-Z0-9_]*/
+NAME:      /(?!si\b|sino\b|mientras\b|hacer\b|para\b|segun\b|caso\b|defecto\b|romper\b|imprimir\b|leer\b|no\b|yy\b|oo\b|entero\b|decimal\b|texto\b|booleano\b|verdadero\b|falso\b)[a-zA-Z_][a-zA-Z0-9_]*/
 
 %import common.ESCAPED_STRING -> STRING
 %import common.WS
@@ -274,7 +270,7 @@ CASO:      "caso"
 DEFECTO:   "defecto"
 ROMPER:    "romper"
 NO:        "no"
-LOG_OP:    "y" | "o"
+LOG_OP:    "yy" | "oo"
 
 REL_OP:    "==" | "!=" | "<=" | ">=" | "<" | ">"
 EQUAL:     "="
@@ -292,7 +288,7 @@ COLON:     ":"
 
 DECIMAL.2: /\d+\.\d+/
 ENTERO:    /\d+/
-NAME:      /[a-zA-Z_][a-zA-Z0-9_]*/
+NAME:      /(?!si\b|sino\b|mientras\b|hacer\b|para\b|segun\b|caso\b|defecto\b|romper\b|imprimir\b|leer\b|no\b|yy\b|oo\b|entero\b|decimal\b|texto\b|booleano\b|verdadero\b|falso\b)[a-zA-Z_][a-zA-Z0-9_]*/
 
 %import common.ESCAPED_STRING -> STRING
 %import common.WS
@@ -344,7 +340,7 @@ _RESERVADAS: dict[str, str] = {
     "si": "SI", "sino": "SINO", "mientras": "MIENTRAS", "hacer": "HACER",
     "para": "PARA", "segun": "SEGUN", "caso": "CASO", "defecto": "DEFECTO",
     "romper": "ROMPER", "imprimir": "IMPRIMIR", "leer": "LEER",
-    "no": "NO", "y": "OP_LOGICO", "o": "OP_LOGICO",
+    "no": "NO", "yy": "OP_LOGICO", "oo": "OP_LOGICO",
     "entero": "TIPO_DATO", "decimal": "TIPO_DATO",
     "texto": "TIPO_DATO", "booleano": "TIPO_DATO",
     "verdadero": "BOOLEANO", "falso": "BOOLEANO",
